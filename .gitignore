@@ -3,3 +3,4 @@
 /properties
 /appsettings.*
 /.vscode
+/node_modules
