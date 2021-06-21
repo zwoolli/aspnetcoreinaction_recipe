@@ -4,3 +4,4 @@
 /appsettings.*
 /.vscode
 /node_modules
+/wwwroot
