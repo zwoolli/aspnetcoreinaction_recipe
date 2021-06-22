@@ -1,4 +1,5 @@
 const path = require('path');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
     mode: 'development',
@@ -12,8 +13,14 @@ module.exports = {
     },
     optimization: {
         splitChunks: {
-            chunks: 'all',
-        },
+            cacheGroups: {
+                common: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "common",
+                    chunks: "all"
+                }
+            }
+        }
     },
     module: {
         rules: [
@@ -23,4 +30,11 @@ module.exports = {
             },
         ]
     },
+    plugins: [
+        new BundleAnalyzerPlugin({
+            analyzerMode: 'disabled',
+            generateStatsFile: true,
+            statsOptions: { source: false }
+        }),
+    ]
 };
