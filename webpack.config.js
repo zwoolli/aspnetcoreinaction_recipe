@@ -12,15 +12,33 @@ module.exports = {
         path: path.resolve(__dirname, 'wwwroot', 'dist')
     },
     optimization: {
+        // splitChunks: {
+        //     cacheGroups: {
+        //         common: {
+        //             test: /[\\/]node_modules[\\/]/,
+        //             name: "common",
+        //             chunks: "all"
+        //         }
+
+        //     }
+
+        // splitChunks: {
+        //     chunks: "all",
+        // }
+        
+        runtimeChunk: 'single',
         splitChunks: {
+            chunks: 'all',
             cacheGroups: {
-                common: {
+                vendor: {
                     test: /[\\/]node_modules[\\/]/,
-                    name: "common",
-                    chunks: "all"
-                }
-            }
-        }
+                    name(module) {
+                        const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+                        return `npm.${packageName.replace('@', '')}`;
+                    },
+                },
+            },
+        },
     },
     module: {
         rules: [
@@ -36,5 +54,5 @@ module.exports = {
             generateStatsFile: true,
             statsOptions: { source: false }
         }),
-    ]
+    ],
 };

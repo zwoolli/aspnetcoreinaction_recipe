@@ -23,13 +23,11 @@
   },
   "dependencies": {
     "bootstrap": "^5.0.1",
-    "jquery": "^3.6.0",
-    "jquery-validation": "^1.19.3",
     "jquery-validation-unobtrusive": "^3.2.12"
   },
   "scripts": {
     "build": "webpack",
     "watch": "webpack --progress --profile --watch",
-    "stats": "webpack-bundle-analyzer --port 4200 ./wwwroot/dist/stats.json"
+    "stats": "webpack; webpack-bundle-analyzer --port 4200 ./wwwroot/dist/stats.json"
   }
 }
