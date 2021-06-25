@@ -5,7 +5,7 @@ namespace RecipeApp.Data
 {
     public class Recipe
     {
-        public int RecipeID { get; set; }
+        public int Recipe_Id { get; set; }
         public string Name { get; set; }
         public TimeSpan TimeToCook { get; set; }
         public bool IsDeleted { get; set; }

@@ -9,29 +9,17 @@ namespace RecipeApp.Data
 {
     public class UserStore : IUserStore<ApplicationUser>, IUserEmailStore<ApplicationUser>, IUserPasswordStore<ApplicationUser>
     {
-        private readonly string _connectionString;
+        private readonly IUserRepository _repository;
 
-        public UserStore(string connectionString)
+        public UserStore(IUserRepository repository)
         {
-            _connectionString = connectionString;
+            _repository = _repository;
         }
 
         public async Task<IdentityResult> CreateAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            string sql = $@"INSERT INTO applicationuser (username, normalizedusername, email, normalizedemail, emailconfirmed, passwordhash) 
-                            VALUES (@{nameof(ApplicationUser.UserName)}, @{nameof(ApplicationUser.NormalizedUserName)}, @{nameof(ApplicationUser.Email)},
-                                    @{nameof(ApplicationUser.NormalizedEmail)}, @{nameof(ApplicationUser.EmailConfirmed)}, @{nameof(ApplicationUser.PasswordHash)}) 
-                            RETURNING user_id";
-
-            using (var connection = new NpgsqlConnection(_connectionString))
-            {
-                await connection.OpenAsync(cancellationToken);
-                user.Id = await connection.QuerySingleAsync<int>(sql, user);
-            }
-
-            return IdentityResult.Success;
+            return await _repository.CreateAsync(user);
         }
 
         public async Task<IdentityResult> DeleteAsync(ApplicationUser user, CancellationToken cancellationToken)

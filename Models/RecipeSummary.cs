@@ -13,7 +13,7 @@ namespace RecipeApp.Models
         {
             return new RecipeSummaryViewModel
             {
-                Id = recipe.RecipeID,
+                Id = recipe.RecipeId,
                 Name = recipe.Name,
                 TimeToCook = $"{recipe.TimeToCook.Hours}hrs {recipe.TimeToCook.Minutes}mins",
             };
