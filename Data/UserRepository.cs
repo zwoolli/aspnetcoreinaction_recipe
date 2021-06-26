@@ -1,8 +1,6 @@
 using System;
 using System.Data;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Dapper;
 using Npgsql;
 
@@ -12,7 +10,7 @@ namespace RecipeApp.Data
     {
         public UserRepository(NpgsqlConnection connection) : base(connection) {}
 
-        public async Task<IdentityResult> CreateAsync(ApplicationUser user)
+        public async Task<int> CreateAsync(ApplicationUser user)
         {
             string sql = $@"INSERT INTO applicationuser (username, normalizedusername, email, normalizedemail, emailconfirmed, passwordhash) 
                             VALUES (@{nameof(ApplicationUser.UserName)}, @{nameof(ApplicationUser.NormalizedUserName)}, @{nameof(ApplicationUser.Email)},
@@ -21,13 +19,72 @@ namespace RecipeApp.Data
 
             using (IDbConnection connection = Open())
             {
-                int rows = await connection.ExecuteAsync(sql, user);
+                return await connection.ExecuteAsync(sql, user);
+            }
+        }
 
-                if (rows > 0)
-                {
-                    return IdentityResult.Success;
-                }
-                return IdentityResult.Failed(new IdentityError { Description = $"Could not insert user {user.Email}." });
+        public async Task<ApplicationUser> GetAsync(Guid id)
+        {
+            string sql = $@"SELECT * 
+                            FROM applicationuser 
+                            WHERE user_id = @{nameof(id)}";
+
+            using (IDbConnection connection = Open())
+            {
+                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {id});
+            }
+        }
+
+        public async Task<int> UpdateAsync(ApplicationUser user)
+        {
+            string sql = $@"UPDATE applicationuser 
+                            SET username = @{nameof(ApplicationUser.UserName)},
+                                normalizedusername = @{nameof(ApplicationUser.NormalizedUserName)},
+                                email = @{nameof(ApplicationUser.Email)},
+                                normalizedemail = @{nameof(ApplicationUser.NormalizedEmail)},
+                                emailconfirmed = @{nameof(ApplicationUser.EmailConfirmed)},
+                                passwordhash = @{nameof(ApplicationUser.PasswordHash)} 
+                            WHERE user_id = @{nameof(ApplicationUser.Id)}";
+
+            using (IDbConnection connection = Open())
+            {
+                return await connection.ExecuteAsync(sql, user);
+            }
+        }
+
+        public async Task<int> DeleteAsync(Guid id)
+        {
+            string sql = $@"DELETE 
+                            FROM applicationuser 
+                            WHERE user_id = @{nameof(id)}";
+
+            using (IDbConnection connection = Open())
+            {
+               return await connection.ExecuteAsync(sql, new {id});
+            }            
+        }
+
+        public async Task<ApplicationUser> GetByNameAsync(string normalizedusername)
+        {
+            string sql = $@"SELECT * 
+                            FROM applicationuser 
+                            WHERE normalizedusername = @{nameof(normalizedusername)}";
+
+            using (IDbConnection connection = Open())
+            {
+                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {normalizedusername});
+            }
+        }
+
+        public async Task<ApplicationUser> GetByEmailAsync(string normalizedEmail)
+        {
+            string sql = $@"SELECT * 
+                            FROM applicationuser 
+                            WHERE normalizedemail = @{nameof(ApplicationUser.NormalizedEmail)}";
+
+            using (IDbConnection connection = Open())
+            {
+                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new { normalizedEmail });
             }
         }
     }

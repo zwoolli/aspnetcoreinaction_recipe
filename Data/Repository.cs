@@ -15,8 +15,6 @@ namespace RecipeApp.Data
 
         public IDbConnection Open()
         {
-            // TODO: Look at ASP.NET Core way of injecting new connection
-            //https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/security/authentication/identity-custom-storage-providers/sample/CustomIdentityProviderSample/Startup.cs
             _connection.Open();
 
             return _connection;

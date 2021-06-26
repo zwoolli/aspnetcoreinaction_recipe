@@ -1,9 +1,7 @@
+using System;
 using Microsoft.AspNetCore.Identity;
-using RecipeApp.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Npgsql;
-using Dapper;
 
 namespace RecipeApp.Data
 {
@@ -13,60 +11,35 @@ namespace RecipeApp.Data
 
         public UserStore(IUserRepository repository)
         {
-            _repository = _repository;
+            _repository = repository;
         }
 
         public async Task<IdentityResult> CreateAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            return await _repository.CreateAsync(user);
+            int rows = await _repository.CreateAsync(user);
+            return GetIdentityResult(rows, "Insert", user);
         }
 
         public async Task<IdentityResult> DeleteAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            string sql = $@"DELETE 
-                            FROM applicationuser 
-                            WHERE user_id = @{nameof(ApplicationUser.Id)}";
-
-            using (var connection = new NpgsqlConnection(_connectionString))
-            {
-                await connection.OpenAsync(cancellationToken);
-                await connection.ExecuteAsync(sql, user);
-            }            
-
-            return IdentityResult.Success;
+            int rows = await _repository.DeleteAsync(user.Id);
+            return GetIdentityResult(rows, "Delete", user);
         }
 
         public async Task<ApplicationUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            string sql = $@"SELECT * 
-                            FROM applicationuser 
-                            WHERE user_id = @{nameof(userId)}::integer";
-
-            using (var connection = new NpgsqlConnection(_connectionString))
-            {
-                await connection.OpenAsync(cancellationToken);
-                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {userId});
-            }
+            return await _repository.GetAsync(Guid.Parse(userId));
         }
 
         public async Task<ApplicationUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            string sql = $@"SELECT * 
-                            FROM applicationuser 
-                            WHERE normalizedusername = @{nameof(normalizedUserName)}";
-
-            using (var connection = new NpgsqlConnection(_connectionString))
-            {
-                await connection.OpenAsync(cancellationToken);
-                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {normalizedUserName});
-            }
+            return await _repository.GetByNameAsync(normalizedUserName);
         }
 
         public Task<string> GetNormalizedUserNameAsync(ApplicationUser user, CancellationToken cancellationToken)
@@ -99,38 +72,14 @@ namespace RecipeApp.Data
         public async Task<IdentityResult> UpdateAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            string sql = $@"UPDATE applicationuser 
-                            SET username = @{nameof(ApplicationUser.UserName)},
-                                normalizedusername = @{nameof(ApplicationUser.NormalizedUserName)},
-                                email = @{nameof(ApplicationUser.Email)},
-                                normalizedemail = @{nameof(ApplicationUser.NormalizedEmail)},
-                                emailconfirmed = @{nameof(ApplicationUser.EmailConfirmed)},
-                                passwordhash = @{nameof(ApplicationUser.PasswordHash)} 
-                            WHERE user_id = @{nameof(ApplicationUser.Id)}";
-
-            using (var connection = new NpgsqlConnection(_connectionString))
-            {
-                await connection.OpenAsync(cancellationToken);
-                await connection.ExecuteAsync(sql, user);
-            }
-
-            return IdentityResult.Success;
+            int rows = await _repository.UpdateAsync(user);
+            return GetIdentityResult(rows, "Update", user);
         }
 
         public async Task<ApplicationUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            string sql = $@"SELECT * 
-                            FROM applicationuser 
-                            WHERE normalizedemail = @{nameof(ApplicationUser.NormalizedEmail)}";
-
-            using (var connection = new NpgsqlConnection(_connectionString))
-            {
-                await connection.OpenAsync(cancellationToken);
-                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new { normalizedEmail });
-            }
+            return await _repository.GetByEmailAsync(normalizedEmail);
         }
 
         public Task<string> GetEmailAsync(ApplicationUser user, CancellationToken cancellationToken)
@@ -180,6 +129,15 @@ namespace RecipeApp.Data
         {
             user.PasswordHash = passwordHash;
             return Task.FromResult(0);
+        }
+
+        private IdentityResult GetIdentityResult(int rows, string queryType, ApplicationUser user)
+        {
+            if (rows > 0)
+            {
+                return IdentityResult.Success;
+            }
+            return IdentityResult.Failed(new IdentityError { Description = $"Could not {queryType} user {user.Email}." });
         }
 
         public void Dispose() {}
