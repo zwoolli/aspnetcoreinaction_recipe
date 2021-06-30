@@ -64,7 +64,7 @@ namespace RecipeApp.Data
             {
                 Dictionary<Guid, Recipe> recipeDictionary = new Dictionary<Guid, Recipe>();
 
-                List<Recipe> recipes = (
+                Recipe recipe = (
                     await connection.QueryAsync<Recipe, Ingredient, Recipe>(
                         sql,
                         (recipe, ingredient) =>
@@ -86,26 +86,17 @@ namespace RecipeApp.Data
                     )
                 )
                 .Distinct()
-                .ToList();
-// make sure there is only one in this list
-                return recipes[0];
+                .FirstOrDefault();
+
+                return recipe;
             }
         }
 
         public async Task<List<RecipeSummaryViewModel>> GetRecipesForSummary()
         {
-            IEnumerable<Recipe> recipes;
-            List<RecipeSummaryViewModel> recipeViewModels;
+            List<Recipe> recipes = await GetRecipesAsync();
 
-            string sql = $@"SELECT *
-                            FROM recipe";
-
-            using (IDbConnection connection = Open())
-            {
-                recipes = await connection.QueryAsync<Recipe>(sql);
-            }
-
-            recipeViewModels = recipes.Select(r => 
+            List<RecipeSummaryViewModel> recipeViewModels = recipes.Select(r => 
                 new RecipeSummaryViewModel
                 {
                     Id = r.Recipe_Id,
@@ -118,34 +109,15 @@ namespace RecipeApp.Data
 
         public async Task<bool> DoesRecipeExistAsync(Guid id) 
         {
-            string sql = $@"SELECT * 
-                            FROM recipe 
-                            WHERE recipe_Id = @{nameof(id)}";
-
-
-            using (IDbConnection connection = Open())
-            {
-                Recipe recipe = await connection.QuerySingleOrDefaultAsync<Recipe>(sql, new {id});
-                
-                return recipe == null ? false : true;    
-            }         
+            Recipe recipe = await GetRecipeAsync(id);
+            return recipe == null ? false : true;         
         }
 
         public async Task<RecipeDetailViewModel> GetRecipeDetailAsync(Guid id)
         {
-            Recipe recipe;
-            RecipeDetailViewModel recipeDetailViewModel;
+            Recipe recipe = await GetRecipeAsync(id);
 
-            string sql = $@"SELECT * 
-                            FROM recipe
-                            WHERE recipe_Id = @{nameof(id)}";
-
-            using (IDbConnection connection = Open())
-            {
-                recipe = await connection.QuerySingleOrDefaultAsync<Recipe>(sql, new {id});
-            }
-
-            recipeDetailViewModel = new RecipeDetailViewModel 
+            RecipeDetailViewModel recipeDetailViewModel = new RecipeDetailViewModel 
             {
                 Id = recipe.Recipe_Id,
                 Name = recipe.Name,
@@ -161,21 +133,11 @@ namespace RecipeApp.Data
             return recipeDetailViewModel;
         }
 
-        public async Task<UpdateRecipeCommand> GetRecipesForUpdateAsync(Guid id)
+        public async Task<UpdateRecipeCommand> GetRecipeForUpdateAsync(Guid id)
         {
-            Recipe recipe;
-            UpdateRecipeCommand updateRecipeCommand;
+            Recipe recipe = await GetRecipeAsync(id);
 
-            string sql = $@"SELECT * 
-                            FROM recipe
-                            WHERE recipe_Id = @{nameof(id)}";
-
-            using (IDbConnection connection = Open())
-            {
-                recipe = await connection.QuerySingleOrDefaultAsync<Recipe>(sql, new {id});
-            }
-
-            updateRecipeCommand =
+            UpdateRecipeCommand updateRecipeCommand =
                 new UpdateRecipeCommand
                 {
                     Name = recipe.Name,
@@ -192,18 +154,61 @@ namespace RecipeApp.Data
         public async Task<Guid> CreateRecipeAsync(CreateRecipeCommand cmd)
         {
             Recipe recipe = cmd.ToRecipe();
-            //TODO: figure out how to insert list of ingredients too
-            string sql = $@"INSERT INTO recipe (recipe_Id, name, timeToCook, 
+            
+            string sqlRecipe = $@"INSERT INTO recipe (recipe_Id, name, timeToCook, 
                                                 method, isVegan, isVegetarian, lastModified) 
-                            VALUES (@{nameof(recipe.Recipe_Id)}, @{nameof(recipe.Name)}, @{nameof(recipe.TimeToCook)}, 
-                                        @{nameof(recipe.Method)}, @{nameof(recipe.IsVegan)}, 
-                                        @{nameof(recipe.IsVegetarian)}, @{nameof(recipe.LastModified)}) 
-                            RETURNING recipe_Id";
+                                VALUES (@{nameof(Recipe.Recipe_Id)}, @{nameof(Recipe.Name)}, @{nameof(Recipe.TimeToCook)}, 
+                                            @{nameof(Recipe.Method)}, @{nameof(Recipe.IsVegan)}, 
+                                            @{nameof(Recipe.IsVegetarian)}, @{nameof(Recipe.LastModified)})";
+
+            string sqlIngredient = $@"INSERT INTO ingredient (ingredient_id, recipe_id, name, quantity, unit) 
+                                    VALUES (@{nameof(Ingredient.Ingredient_Id)}, @{nameof(Ingredient.Recipe_Id)}, @{nameof(Ingredient.Name)},
+                                            @{nameof(Ingredient.Quantity)}, @{nameof(Ingredient.Unit)})";
 
             using (IDbConnection connection = Open())
             {
-                //TODO: figure out how to return guid from executeasync
-                return await connection.ExecuteAsync(sql, recipe);
+                await connection.ExecuteAsync(sqlRecipe, recipe);
+                await connection.ExecuteAsync(sqlIngredient, recipe.Ingredients);
+
+                return recipe.Recipe_Id;
+            }
+        }
+
+        public async Task UpdateRecipe(UpdateRecipeCommand cmd)
+        {
+            Recipe recipe = await GetRecipeAsync(cmd.Id);
+            if (recipe == null) { throw new Exception("Unable to find the recipe"); }
+
+            cmd.UpdateRecipe(recipe);
+
+            string sql = $@"UPDATE recipe 
+                            SET name = @{nameof(Recipe.Name)},
+                                timeToCook = @{nameof(Recipe.TimeToCook)},
+                                method = @{nameof(Recipe.Method)},
+                                isVegetarian = @{nameof(Recipe.IsVegetarian)},
+                                isVegan = @{nameof(Recipe.IsVegan)} 
+                            WHERE recipe_id = @{nameof(Recipe.Recipe_Id)}";
+
+            using (IDbConnection connection = Open())
+            {
+                await connection.ExecuteAsync(sql, recipe);
+            }
+        }
+
+        public async Task DeleteRecipe(Guid id)
+        {
+            string sqlRecipe = $@"DELETE 
+                                FROM recipe 
+                                WHERE recipe_id = @{nameof(id)}";
+
+            string sqlIngredient = $@"DELETE 
+                                    FROM ingredient 
+                                    WHERE recipe_id = @{nameof(id)}";
+
+            using (IDbConnection connection = Open())
+            {
+                await connection.ExecuteAsync(sqlIngredient, new {id});
+                await connection.ExecuteAsync(sqlRecipe, new {id});
             }
         }
     }

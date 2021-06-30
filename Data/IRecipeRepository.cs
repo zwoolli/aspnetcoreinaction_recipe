@@ -7,11 +7,14 @@ namespace RecipeApp.Data
 {
     public interface IRecipeRepository : IRepository<Recipe>
     {
+        Task<List<Recipe>> GetRecipesAsync();
+        Task<Recipe> GetRecipeAsync(Guid id);
+        Task<List<RecipeSummaryViewModel>> GetRecipesForSummary();
+        Task<bool> DoesRecipeExistAsync(Guid id);
+        Task<RecipeDetailViewModel> GetRecipeDetailAsync(Guid id);
+        Task<UpdateRecipeCommand> GetRecipeForUpdateAsync(Guid id);
         Task<Guid> CreateRecipeAsync(CreateRecipeCommand cmd);
-        Task<List<RecipeSummaryViewModel>> GetRecipes(Guid id);
-        Task<RecipeDetailViewModel> GetRecipeDetail(Guid id);
-        Task<UpdateRecipeCommand> GetRecipesForUpdate(Guid id);
-        Task UpdateAsync(Recipe user);
-        Task DeleteAsync(Guid id);
+        Task UpdateRecipe(UpdateRecipeCommand cmd);
+        Task DeleteRecipe(Guid id);
     }
 }

@@ -5,7 +5,7 @@ namespace RecipeApp.Models
 {
     public class UpdateRecipeCommand : EditRecipeBase
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         
         public void UpdateRecipe(Recipe recipe)
         {
