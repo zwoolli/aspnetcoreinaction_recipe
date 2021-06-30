@@ -11,11 +11,88 @@ namespace RecipeApp.Data
 {
     public class RepiceRepository : Repository<Recipe>, IRecipeRepository
     {        
-            // https://dapper-tutorial.net/query#example---query-multi-type
 
         public RepiceRepository(NpgsqlConnection connection) : base(connection) {}
 
-        public async Task<List<RecipeSummaryViewModel>> GetRecipes()
+        public async Task<List<Recipe>> GetRecipesAsync()
+        {
+            string sql = $@"SELECT * 
+                            FROM recipe 
+                            INNER JOIN ingredient 
+                            ON (recipe.recipe_id = ingredient.recipe_id)";
+
+            using (IDbConnection connection = Open())
+            {
+                Dictionary<Guid, Recipe> recipeDictionary = new Dictionary<Guid, Recipe>();
+
+                List<Recipe> recipes = (
+                    await connection.QueryAsync<Recipe, Ingredient, Recipe>(
+                        sql,
+                        (recipe, ingredient) =>
+                        {
+                            Recipe recipeEntry;
+
+                            if (!recipeDictionary.TryGetValue(recipe.Recipe_Id, out recipeEntry))
+                            {
+                                recipeEntry = recipe;
+                                recipeEntry.Ingredients = new List<Ingredient>();
+                                recipeDictionary.Add(recipeEntry.Recipe_Id, recipeEntry);
+                            }
+
+                            recipeEntry.Ingredients.Add(ingredient);
+                            return recipeEntry;
+                        },
+                        splitOn: "ingredient_id"
+                    )
+                )
+                .Distinct()
+                .ToList();
+
+                return recipes;
+            }
+        }
+
+        public async Task<Recipe> GetRecipeAsync(Guid id)
+        {
+            string sql = $@"SELECT * 
+                            FROM recipe
+                            INNER JOIN ingredient
+                            ON (recipe.recipe_id = ingredient.recipe_id)
+                            WHERE recipe.recipe_id = @{nameof(id)}";
+
+            using (IDbConnection connection = Open())
+            {
+                Dictionary<Guid, Recipe> recipeDictionary = new Dictionary<Guid, Recipe>();
+
+                List<Recipe> recipes = (
+                    await connection.QueryAsync<Recipe, Ingredient, Recipe>(
+                        sql,
+                        (recipe, ingredient) =>
+                        {
+                            Recipe recipeEntry;
+
+                            if (!recipeDictionary.TryGetValue(recipe.Recipe_Id, out recipeEntry))
+                            {
+                                recipeEntry = recipe;
+                                recipeEntry.Ingredients = new List<Ingredient>();
+                                recipeDictionary.Add(recipeEntry.Recipe_Id, recipeEntry);
+                            }
+
+                            recipeEntry.Ingredients.Add(ingredient);
+                            return recipeEntry;
+                        },
+                        param: new {id},
+                        splitOn: "ingredient_id"
+                    )
+                )
+                .Distinct()
+                .ToList();
+// make sure there is only one in this list
+                return recipes[0];
+            }
+        }
+
+        public async Task<List<RecipeSummaryViewModel>> GetRecipesForSummary()
         {
             IEnumerable<Recipe> recipes;
             List<RecipeSummaryViewModel> recipeViewModels;
@@ -54,7 +131,7 @@ namespace RecipeApp.Data
             }         
         }
 
-        public async Task<RecipeDetailViewModel> GetRecipeDetail(Guid id)
+        public async Task<RecipeDetailViewModel> GetRecipeDetailAsync(Guid id)
         {
             Recipe recipe;
             RecipeDetailViewModel recipeDetailViewModel;
@@ -84,7 +161,7 @@ namespace RecipeApp.Data
             return recipeDetailViewModel;
         }
 
-        public async Task<UpdateRecipeCommand> GetRecipesForUpdate(Guid id)
+        public async Task<UpdateRecipeCommand> GetRecipesForUpdateAsync(Guid id)
         {
             Recipe recipe;
             UpdateRecipeCommand updateRecipeCommand;
@@ -116,10 +193,10 @@ namespace RecipeApp.Data
         {
             Recipe recipe = cmd.ToRecipe();
             //TODO: figure out how to insert list of ingredients too
-            string sql = $@"INSERT INTO recipe (recipe_Id, name, timeToCook, isDeleted, 
+            string sql = $@"INSERT INTO recipe (recipe_Id, name, timeToCook, 
                                                 method, isVegan, isVegetarian, lastModified) 
                             VALUES (@{nameof(recipe.Recipe_Id)}, @{nameof(recipe.Name)}, @{nameof(recipe.TimeToCook)}, 
-                                        @{nameof(recipe.IsDeleted)}, @{nameof(recipe.Method)}, @{nameof(recipe.IsVegan)}, 
+                                        @{nameof(recipe.Method)}, @{nameof(recipe.IsVegan)}, 
                                         @{nameof(recipe.IsVegetarian)}, @{nameof(recipe.LastModified)}) 
                             RETURNING recipe_Id";
 

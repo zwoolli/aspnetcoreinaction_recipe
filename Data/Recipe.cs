@@ -5,14 +5,13 @@ namespace RecipeApp.Data
 {
     public class Recipe
     {
-        public int Recipe_Id { get; set; }
+        public Guid Recipe_Id { get; set; }
         public string Name { get; set; }
         public TimeSpan TimeToCook { get; set; }
-        public bool IsDeleted { get; set; }
         public string Method { get; set; }
         public bool IsVegetarian { get; set; }
         public bool IsVegan { get; set; }
         public DateTimeOffset LastModified { get; set; }
-        public IEnumerable<Ingredient> Ingredients { get; set; }
+        public List<Ingredient> Ingredients { get; set; }
     }
 }
