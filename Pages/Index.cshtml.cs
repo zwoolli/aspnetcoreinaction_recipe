@@ -12,17 +12,17 @@ namespace RecipeApp.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly RecipeStore _service;
+        private readonly RecipeRepository _repository;
         public IEnumerable<RecipeSummaryViewModel> Recipes { get; private set; }
 
-        public IndexModel(RecipeStore service)
+        public IndexModel(RecipeRepository repository)
         {
-            _service = service;
+            _repository = repository;
         }
 
         public async Task OnGet()
         {
-            Recipes = await _service.GetRecipes();
+            Recipes = await _repository.GetRecipesForSummary();
 
         }
     }

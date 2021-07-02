@@ -9,12 +9,12 @@ using System.Linq;
 
 namespace RecipeApp.Data
 {
-    public class RepiceRepository : Repository<Recipe>, IRecipeRepository
+    public class RecipeRepository : Repository<Recipe>, IRecipeRepository
     {        
 
-        public RepiceRepository(NpgsqlConnection connection) : base(connection) {}
+        public RecipeRepository(NpgsqlConnection connection) : base(connection) {}
 
-        public async Task<List<Recipe>> GetRecipesAsync()
+        public async Task<IEnumerable<Recipe>> GetRecipesAsync()
         {
             string sql = $@"SELECT * 
                             FROM recipe 
@@ -25,7 +25,7 @@ namespace RecipeApp.Data
             {
                 Dictionary<Guid, Recipe> recipeDictionary = new Dictionary<Guid, Recipe>();
 
-                List<Recipe> recipes = (
+                IEnumerable<Recipe> recipes = (
                     await connection.QueryAsync<Recipe, Ingredient, Recipe>(
                         sql,
                         (recipe, ingredient) =>
@@ -45,8 +45,7 @@ namespace RecipeApp.Data
                         splitOn: "ingredient_id"
                     )
                 )
-                .Distinct()
-                .ToList();
+                .Distinct();
 
                 return recipes;
             }
@@ -92,17 +91,17 @@ namespace RecipeApp.Data
             }
         }
 
-        public async Task<List<RecipeSummaryViewModel>> GetRecipesForSummary()
+        public async Task<IEnumerable<RecipeSummaryViewModel>> GetRecipesForSummary()
         {
-            List<Recipe> recipes = await GetRecipesAsync();
+            IEnumerable<Recipe> recipes = await GetRecipesAsync();
 
-            List<RecipeSummaryViewModel> recipeViewModels = recipes.Select(r => 
+            IEnumerable<RecipeSummaryViewModel> recipeViewModels = recipes.Select(r => 
                 new RecipeSummaryViewModel
                 {
                     Id = r.Recipe_Id,
                     Name = r.Name,
                     TimeToCook = $"{r.TimeToCook.Hours}hrs {r.TimeToCook.Minutes}mins",
-                }).ToList();
+                });
 
             return recipeViewModels;
         }
