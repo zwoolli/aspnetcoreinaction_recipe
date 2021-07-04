@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using RecipeApp.Data;
 using Microsoft.AspNetCore.Identity;
+using RecipeApp.Services;
 
 namespace RecipeApp.Pages
 {
@@ -22,16 +23,15 @@ namespace RecipeApp.Pages
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUserStore<ApplicationUser> _userStore;
-
+        private readonly IMailService _mailService;
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
-            IUserStore<ApplicationUser> userStore,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            IMailService mailService)
         {
             _userManager = userManager;
-            _userStore = userStore;
             _signInManager = signInManager;
+            _mailService = mailService;
         }
         
         [BindProperty]

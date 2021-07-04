@@ -7,6 +7,8 @@ using RecipeApp.Data;
 using Microsoft.AspNetCore.Identity;
 using Npgsql;
 using System.Data;
+using RecipeApp.Settings;
+using RecipeApp.Services;
 
 namespace RecipeApp
 {
@@ -22,14 +24,26 @@ namespace RecipeApp
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
+            IConfigurationSection mailSettings = Configuration.GetSection("MailSettings");
+            services.Configure<MailSettings>(mailSettings);
+
             services.AddTransient<IDbConnection>(e => new NpgsqlConnection(connectionString));
+
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IMailService, MailKitService>();
 
+            // look into lifetime of scoped and transient
+            
+            services.AddScoped<IUserStore<ApplicationUser>, UserStore>();
 
-            // services.AddScoped<IUserStore<ApplicationUser>>(x => new UserStore(connectionString));
             services.AddIdentityCore<ApplicationUser>()
                 .AddSignInManager()
                 .AddDefaultTokenProviders();
+
+            services.Configure<IdentityOptions>(options => {
+                options.SignIn.RequireConfirmedAccount = true;
+            });
+
 
             services.AddRazorPages();
         }
