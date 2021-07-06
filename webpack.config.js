@@ -5,27 +5,14 @@ module.exports = {
     mode: 'development',
     entry: {
         index: './src/js/index.js',
-        validation: './src/js/validation.js'
+        validation: './src/js/validation.js',
+        createRecipe: './src/js/createRecipe.js'
     },
     output: {
         filename: '[name].bundle.js',
         path: path.resolve(__dirname, 'wwwroot', 'dist')
     },
     optimization: {
-        // splitChunks: {
-        //     cacheGroups: {
-        //         common: {
-        //             test: /[\\/]node_modules[\\/]/,
-        //             name: "common",
-        //             chunks: "all"
-        //         }
-
-        //     }
-
-        // splitChunks: {
-        //     chunks: "all",
-        // }
-        
         runtimeChunk: 'single',
         splitChunks: {
             chunks: 'all',

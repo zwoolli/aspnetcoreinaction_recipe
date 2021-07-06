@@ -27,14 +27,13 @@ namespace RecipeApp
             IConfigurationSection mailSettings = Configuration.GetSection("MailSettings");
             services.Configure<MailSettings>(mailSettings);
 
-            services.AddTransient<IDbConnection>(e => new NpgsqlConnection(connectionString));
-
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<IMailService, MailKitService>();
-
-            // look into lifetime of scoped and transient
-            
+            services.AddScoped<IDbConnection>(e => new NpgsqlConnection(connectionString));
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRecipeRepository, RecipeRepository>();
             services.AddScoped<IUserStore<ApplicationUser>, UserStore>();
+
+            services.AddTransient<IMailService, MailKitService>();
+            
 
             services.AddIdentityCore<ApplicationUser>()
                 .AddSignInManager()
@@ -43,7 +42,6 @@ namespace RecipeApp
             services.Configure<IdentityOptions>(options => {
                 options.SignIn.RequireConfirmedAccount = true;
             });
-
 
             services.AddRazorPages();
         }

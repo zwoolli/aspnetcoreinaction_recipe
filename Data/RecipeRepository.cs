@@ -173,7 +173,7 @@ namespace RecipeApp.Data
             }
         }
 
-        public async Task UpdateRecipe(UpdateRecipeCommand cmd)
+        public async Task UpdateRecipeAsync(UpdateRecipeCommand cmd)
         {
             Recipe recipe = await GetRecipeAsync(cmd.Id);
             if (recipe == null) { throw new Exception("Unable to find the recipe"); }
@@ -194,7 +194,7 @@ namespace RecipeApp.Data
             }
         }
 
-        public async Task DeleteRecipe(Guid id)
+        public async Task DeleteRecipeAsync(Guid id)
         {
             string sqlRecipe = $@"DELETE 
                                 FROM recipe 

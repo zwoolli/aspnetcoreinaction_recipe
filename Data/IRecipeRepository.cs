@@ -14,7 +14,7 @@ namespace RecipeApp.Data
         Task<RecipeDetailViewModel> GetRecipeDetailAsync(Guid id);
         Task<UpdateRecipeCommand> GetRecipeForUpdateAsync(Guid id);
         Task<Guid> CreateRecipeAsync(CreateRecipeCommand cmd);
-        Task UpdateRecipe(UpdateRecipeCommand cmd);
-        Task DeleteRecipe(Guid id);
+        Task UpdateRecipeAsync(UpdateRecipeCommand cmd);
+        Task DeleteRecipeAsync(Guid id);
     }
 }
