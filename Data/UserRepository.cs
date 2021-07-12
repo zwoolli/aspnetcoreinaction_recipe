@@ -8,7 +8,7 @@ namespace RecipeApp.Data
 {
     public class UserRepository : Repository<ApplicationUser>, IUserRepository
     {
-        public UserRepository(NpgsqlConnection connection) : base(connection) {}
+        public UserRepository(IDbConnection connection) : base(connection) {}
 
         public async Task<int> CreateAsync(ApplicationUser user)
         {

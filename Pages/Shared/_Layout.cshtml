@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - RecipeApplication</title>
     <script src="dist/index.bundle.js" defer></script>
-    @RenderSectionAsync("Scripts", required: false);
+    @await RenderSectionAsync("Scripts", required: false)
+
 </head>
 <body>
     <header>

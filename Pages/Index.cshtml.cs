@@ -12,10 +12,10 @@ namespace RecipeApp.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly RecipeRepository _repository;
+        private readonly IRecipeRepository _repository;
         public IEnumerable<RecipeSummaryViewModel> Recipes { get; private set; }
 
-        public IndexModel(RecipeRepository repository)
+        public IndexModel(IRecipeRepository repository)
         {
             _repository = repository;
         }
