@@ -7,13 +7,17 @@ namespace RecipeApp.Models
     {
         public Guid Id { get; set; }
         
-        public void UpdateRecipe(Recipe recipe)
+        public Recipe UpdateRecipe()
         {
-            recipe.Name = Name;
-            recipe.TimeToCook = new TimeSpan(TimeToCookHrs, TimeToCookMins, 0);
-            recipe.Method = Method;
-            recipe.IsVegetarian = IsVegetarian;
-            recipe.IsVegan = IsVegan;
+            return new Recipe
+            {
+                Recipe_Id = Id,
+                Name = Name,
+                TimeToCook = new TimeSpan(TimeToCookHrs, TimeToCookMins, 0),
+                Method = Method,
+                IsVegetarian = IsVegetarian,
+                IsVegan = IsVegan,
+            };
         }
     }
 }

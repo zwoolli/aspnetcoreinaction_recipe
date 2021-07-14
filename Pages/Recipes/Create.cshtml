@@ -4,8 +4,8 @@
     ViewData["Title"] = "Create Recipe";
 }
 @section Scripts {
-    <script src="dist/validation.bundle.js" defer></script>
-    <script src="dist/createRecipe.bundle.js" defer></script>
+    <script src="~/dist/validation.bundle.js" defer></script>
+    <script src="~/dist/createRecipe.bundle.js" defer></script>
     @* <script>
         var ingredients = $('#ingredients tbody');
         $("#addIngredient").click(function () {
@@ -13,8 +13,8 @@
             var template =
                 '<tr>' +
                 '<td><input name="Ingredients[' + rowNo + '].Name" id="Ingredients_' + rowNo + '_Name" /></td>' +
-                '<td><input name="Ingredients[' + rowNo + '].Quantity" id="Ingredients_' + rowNo + 'Quantity" /></td>' +
-                '<td><input name="Ingredients[' + rowNo + '].Unit" id="Ingredients_' + rowNo + 'Unit" /></td>' +
+                '<td><input name="Ingredients[' + rowNo + '].Quantity" id="Ingredients_' + rowNo + '_Quantity" /></td>' +
+                '<td><input name="Ingredients[' + rowNo + '].Unit" id="Ingredients_' + rowNo + '_Unit" /></td>' +
                 '</tr>';
             ingredients.append(template);
         });

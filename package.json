@@ -28,6 +28,6 @@
   "scripts": {
     "build": "webpack",
     "watch": "webpack --progress --profile --watch",
-    "stats": "webpack; webpack-bundle-analyzer --port 4200 ./wwwroot/dist/stats.json"
+    "stats": "webpack-bundle-analyzer --port 4200 ./wwwroot/dist/stats.json"
   }
 }

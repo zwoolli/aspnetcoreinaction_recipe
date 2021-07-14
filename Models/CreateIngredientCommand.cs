@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using RecipeApp.Data;
 
@@ -16,6 +17,7 @@ namespace RecipeApp.Models
         {
             return new Ingredient
             {
+                Ingredient_Id = Guid.NewGuid(),
                 Name = Name,
                 Quantity = Quantity,
                 Unit = Unit,

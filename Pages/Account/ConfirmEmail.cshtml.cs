@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using RecipeApp.Data;
 using Microsoft.AspNetCore.Identity;
 
-namespace RecipeApp.Pages
+namespace RecipeApp.Pages.Account
 {
     [AllowAnonymous]
     public class ConfirmEmailModel : PageModel

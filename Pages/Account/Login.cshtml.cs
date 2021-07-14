@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Identity;
 using RecipeApp.Data;
 
-namespace RecipeApp.Pages
+namespace RecipeApp.Pages.Account
 {
     [AllowAnonymous]
     public class LoginModel : PageModel

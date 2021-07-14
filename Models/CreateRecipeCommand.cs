@@ -13,6 +13,7 @@ namespace RecipeApp.Models
         {
             return new Recipe
             {
+                Recipe_Id = Guid.NewGuid(),
                 Name = Name,
                 TimeToCook = new TimeSpan(TimeToCookHrs, TimeToCookMins, 0),
                 Method = Method,

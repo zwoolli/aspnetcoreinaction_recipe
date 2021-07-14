@@ -18,7 +18,7 @@ namespace RecipeApp.Data
         {
             string sql = $@"SELECT * 
                             FROM recipe 
-                            INNER JOIN ingredient 
+                            LEFT JOIN ingredient 
                             ON (recipe.recipe_id = ingredient.recipe_id)";
 
             using (IDbConnection connection = Open())
@@ -39,14 +39,14 @@ namespace RecipeApp.Data
                                 recipeDictionary.Add(recipeEntry.Recipe_Id, recipeEntry);
                             }
 
-                            recipeEntry.Ingredients.Add(ingredient);
+                            if (ingredient != null) recipeEntry.Ingredients.Add(ingredient);
                             return recipeEntry;
                         },
                         splitOn: "ingredient_id"
                     )
                 )
                 .Distinct();
-
+            
                 return recipes;
             }
         }
@@ -55,7 +55,7 @@ namespace RecipeApp.Data
         {
             string sql = $@"SELECT * 
                             FROM recipe
-                            INNER JOIN ingredient
+                            LEFT JOIN ingredient
                             ON (recipe.recipe_id = ingredient.recipe_id)
                             WHERE recipe.recipe_id = @{nameof(id)}";
 
@@ -77,7 +77,7 @@ namespace RecipeApp.Data
                                 recipeDictionary.Add(recipeEntry.Recipe_Id, recipeEntry);
                             }
 
-                            recipeEntry.Ingredients.Add(ingredient);
+                            if (ingredient != null) recipeEntry.Ingredients.Add(ingredient);
                             return recipeEntry;
                         },
                         param: new {id},
@@ -121,7 +121,7 @@ namespace RecipeApp.Data
                 Id = recipe.Recipe_Id,
                 Name = recipe.Name,
                 Method = recipe.Method,
-                Ingredients = recipe.Ingredients.Select(i => 
+                Ingredients = recipe.Ingredients?.Select(i => 
                     new RecipeDetailViewModel.Item
                     {
                         Name = i.Name,
@@ -155,10 +155,10 @@ namespace RecipeApp.Data
             Recipe recipe = cmd.ToRecipe();
             
             string sqlRecipe = $@"INSERT INTO recipe (recipe_Id, name, timeToCook, 
-                                                method, isVegan, isVegetarian, lastModified) 
+                                                method, isVegan, isVegetarian) 
                                 VALUES (@{nameof(Recipe.Recipe_Id)}, @{nameof(Recipe.Name)}, @{nameof(Recipe.TimeToCook)}, 
                                             @{nameof(Recipe.Method)}, @{nameof(Recipe.IsVegan)}, 
-                                            @{nameof(Recipe.IsVegetarian)}, @{nameof(Recipe.LastModified)})";
+                                            @{nameof(Recipe.IsVegetarian)})";
 
             string sqlIngredient = $@"INSERT INTO ingredient (ingredient_id, recipe_id, name, quantity, unit) 
                                     VALUES (@{nameof(Ingredient.Ingredient_Id)}, @{nameof(Ingredient.Recipe_Id)}, @{nameof(Ingredient.Name)},
@@ -175,17 +175,16 @@ namespace RecipeApp.Data
 
         public async Task UpdateRecipeAsync(UpdateRecipeCommand cmd)
         {
-            Recipe recipe = await GetRecipeAsync(cmd.Id);
+            Recipe recipe = cmd.UpdateRecipe();
+            
             if (recipe == null) { throw new Exception("Unable to find the recipe"); }
-
-            cmd.UpdateRecipe(recipe);
 
             string sql = $@"UPDATE recipe 
                             SET name = @{nameof(Recipe.Name)},
                                 timeToCook = @{nameof(Recipe.TimeToCook)},
                                 method = @{nameof(Recipe.Method)},
-                                isVegetarian = @{nameof(Recipe.IsVegetarian)},
-                                isVegan = @{nameof(Recipe.IsVegan)} 
+                                isVegan = @{nameof(Recipe.IsVegan)},
+                                isVegetarian = @{nameof(Recipe.IsVegetarian)}
                             WHERE recipe_id = @{nameof(Recipe.Recipe_Id)}";
 
             using (IDbConnection connection = Open())
