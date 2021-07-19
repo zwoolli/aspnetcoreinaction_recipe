@@ -1,12 +1,14 @@
-let ingredients = document.querySelector("#ingredients");//.querySelector('tbody'); 
+let ingredients = document.querySelector("#ingredients_tbody"); 
 let addIngredient = document.querySelector("#addIngredient");
 
-addIngredient.addEventListener('click', AddIngredient());
+addIngredient.addEventListener('click', e => AddIngredient(e));
 ingredients.addEventListener('click', e => RemoveIngredient(e));
 
-function AddIngredient() {
+function AddIngredient(e) {
+    console.log('inside add ingredient');
+    if (e.target.id != "addIngredient") return;
+    
     let rowNo = ingredients.rows.length;
-
     let row = ingredients.insertRow(rowNo);
     let col1 = row.insertCell(0);
     let col2 = row.insertCell(1);
@@ -30,6 +32,7 @@ function AddIngredient() {
 }
 
 function RemoveIngredient(e) {
+    console.log('inside remove ingredient');
     if (e.target.classList.contains('remove')) {
         e.target.closest('tr').remove();
     }

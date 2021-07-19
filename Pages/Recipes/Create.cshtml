@@ -1,28 +1,11 @@
 ﻿@page
-@model CreateModel
+@model RecipeApp.Pages.Recipes.CreateModel
 @{
     ViewData["Title"] = "Create Recipe";
 }
 @section Scripts {
     <script src="~/dist/validation.bundle.js" defer></script>
     <script src="~/dist/createRecipe.bundle.js" defer></script>
-    @* <script>
-        var ingredients = $('#ingredients tbody');
-        $("#addIngredient").click(function () {
-            var rowNo = ingredients.find('tr').length;
-            var template =
-                '<tr>' +
-                '<td><input name="Ingredients[' + rowNo + '].Name" id="Ingredients_' + rowNo + '_Name" /></td>' +
-                '<td><input name="Ingredients[' + rowNo + '].Quantity" id="Ingredients_' + rowNo + '_Quantity" /></td>' +
-                '<td><input name="Ingredients[' + rowNo + '].Unit" id="Ingredients_' + rowNo + '_Unit" /></td>' +
-                '</tr>';
-            ingredients.append(template);
-        });
-
-        ingredients.on('click', '.remove', function (e) {
-            $(this).closest('tr').remove();
-        });
-    </script> *@
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -44,7 +27,7 @@
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="ingredients_tbody">
                 @for (int i = 0; i < Model.Input.Ingredients.Count; i++)
                 {
                     var ingredient = Model.Input.Ingredients[i];
