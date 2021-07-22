@@ -11,15 +11,17 @@ namespace RecipeApp.Models
 
         public Recipe ToRecipe()
         {
+            Guid id = Guid.NewGuid();
             return new Recipe
             {
-                Recipe_Id = Guid.NewGuid(),
+                // Perhaps ToRecipe takes an ID and if one isn't provided it creates one for the ID
+                Recipe_Id = id,
                 Name = Name,
                 TimeToCook = new TimeSpan(TimeToCookHrs, TimeToCookMins, 0),
                 Method = Method,
                 IsVegetarian = IsVegetarian,
                 IsVegan = IsVegan,
-                Ingredients = Ingredients?.Select(x=>x.ToIngredient()).ToList()
+                Ingredients = Ingredients?.Select(x=>x.ToIngredient(id)).ToList()
             };
         }
     }

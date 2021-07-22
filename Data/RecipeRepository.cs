@@ -161,7 +161,7 @@ namespace RecipeApp.Data
                                             @{nameof(Recipe.IsVegetarian)})";
 
             string sqlIngredient = $@"INSERT INTO ingredient (ingredient_id, recipe_id, name, quantity, unit) 
-                                    VALUES (@{nameof(Ingredient.Ingredient_Id)}, @{nameof(Ingredient.Recipe_Id)}, @{nameof(Ingredient.Name)},
+                                    VALUES (@{nameof(Ingredient.Ingredient_Id)}, @{nameof(Recipe.Recipe_Id)}, @{nameof(Ingredient.Name)},
                                             @{nameof(Ingredient.Quantity)}, @{nameof(Ingredient.Unit)})";
 
             using (IDbConnection connection = Open())

@@ -13,11 +13,12 @@ namespace RecipeApp.Models
         [StringLength(20)]
         public string Unit { get; set; }
 
-        public Ingredient ToIngredient()
+        public Ingredient ToIngredient(Guid recipe_id)
         {
             return new Ingredient
             {
                 Ingredient_Id = Guid.NewGuid(),
+                Recipe_Id = recipe_id,
                 Name = Name,
                 Quantity = Quantity,
                 Unit = Unit,
