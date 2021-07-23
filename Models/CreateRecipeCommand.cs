@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using RecipeApp.Data;
 
 namespace RecipeApp.Models
@@ -9,9 +10,10 @@ namespace RecipeApp.Models
     {
         public IList<CreateIngredientCommand> Ingredients { get; set; } = new List<CreateIngredientCommand>();
 
-        public Recipe ToRecipe()
+        public Recipe ToRecipe([Optional] Guid id)
         {
-            Guid id = Guid.NewGuid();
+            if (id == Guid.Empty) id = Guid.NewGuid();
+
             return new Recipe
             {
                 // Perhaps ToRecipe takes an ID and if one isn't provided it creates one for the ID

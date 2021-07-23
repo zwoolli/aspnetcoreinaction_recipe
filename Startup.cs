@@ -29,9 +29,11 @@ namespace RecipeApp
             IConfigurationSection mailSettings = Configuration.GetSection("MailSettings");
             services.Configure<MailSettings>(mailSettings);
 
-            services.AddScoped<IDbConnection>(e => new NpgsqlConnection(connectionString));
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IRecipeRepository, RecipeRepository>();
+            // services.AddScoped<IDbConnection>(e => new NpgsqlConnection(connectionString));
+            // Had to switch to passing in the connection string rather than the connection because I could not
+            // Open a connection and dispose of it (in the using block) more than once otherwise. 
+            services.AddScoped<IUserRepository>(x => new UserRepository(connectionString));
+            services.AddScoped<IRecipeRepository>(x => new RecipeRepository(connectionString));
             services.AddScoped<IUserStore<ApplicationUser>, UserStore>();
 
             services.AddTransient<IMailService, MailKitService>();

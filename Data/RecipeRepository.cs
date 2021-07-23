@@ -12,7 +12,7 @@ namespace RecipeApp.Data
     public class RecipeRepository : Repository<Recipe>, IRecipeRepository
     {        
 
-        public RecipeRepository(IDbConnection connection) : base(connection) {}
+        public RecipeRepository(string connectionString) : base(connectionString) {}
 
         public async Task<IEnumerable<Recipe>> GetRecipesAsync()
         {

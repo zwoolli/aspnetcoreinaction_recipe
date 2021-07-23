@@ -12,6 +12,7 @@ function AddIngredient(e) {
     let col1 = row.insertCell(0);
     let col2 = row.insertCell(1);
     let col3 = row.insertCell(2);
+    let col4 = row.insertCell(3);
 
     let name = document.createElement('Input');
     name.name = `Ingredients[${rowNo}].Name`;
@@ -25,9 +26,15 @@ function AddIngredient(e) {
     unit.name = `Ingredients[${rowNo}].Unit`;
     unit.id = `Ingredients_${rowNo}_Unit`;
 
+    let removeButton = document.createElement('a');
+    removeButton.innerHTML = 'Remove';
+    removeButton.href = "#";
+    removeButton.classList.add('remove');
+
     col1.append(name);
     col2.append(quantity);
     col3.append(unit);
+    col4.append(removeButton);
 }
 
 function RemoveIngredient(e) {

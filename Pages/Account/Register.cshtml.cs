@@ -73,6 +73,7 @@ namespace RecipeApp.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    //TODO - this is not returing the user ID. Need to figure out
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

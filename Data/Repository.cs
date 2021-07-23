@@ -6,18 +6,19 @@ namespace RecipeApp.Data
 {
     public abstract class Repository<T> : IRepository<T> where T : class
     {
-        private readonly IDbConnection _connection;
+        private readonly string _connectionString;
 
-        public Repository(IDbConnection connection)
+        public Repository(string connectionString)
         {
-            _connection = connection;
+            _connectionString = connectionString;
         }
 
         public IDbConnection Open()
         {
-            _connection.Open();
+            NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
+            connection.Open();
 
-            return _connection;
+            return connection;
         }
     }
 }
