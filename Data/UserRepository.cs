@@ -2,7 +2,6 @@ using System;
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
-using Npgsql;
 
 namespace RecipeApp.Data
 {
@@ -10,7 +9,7 @@ namespace RecipeApp.Data
     {
         public UserRepository(string connectionString) : base(connectionString) {}
 
-        public async Task<int> CreateAsync(ApplicationUser user)
+        public async Task<Guid> CreateAsync(ApplicationUser user)
         {
             string sql = $@"INSERT INTO applicationuser (username, normalizedusername, email, normalizedemail, emailconfirmed, passwordhash) 
                             VALUES (@{nameof(ApplicationUser.UserName)}, @{nameof(ApplicationUser.NormalizedUserName)}, @{nameof(ApplicationUser.Email)},
@@ -19,7 +18,7 @@ namespace RecipeApp.Data
 
             using (IDbConnection connection = Open())
             {
-                return await connection.ExecuteAsync(sql, user);
+                return await connection.QuerySingleAsync<Guid>(sql, user);
             }
         }
 
@@ -44,7 +43,7 @@ namespace RecipeApp.Data
                                 normalizedemail = @{nameof(ApplicationUser.NormalizedEmail)},
                                 emailconfirmed = @{nameof(ApplicationUser.EmailConfirmed)},
                                 passwordhash = @{nameof(ApplicationUser.PasswordHash)} 
-                            WHERE user_id = @{nameof(ApplicationUser.Id)}";
+                            WHERE user_id = @{nameof(ApplicationUser.User_Id)}";
 
             using (IDbConnection connection = Open())
             {

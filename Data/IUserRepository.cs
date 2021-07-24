@@ -5,7 +5,7 @@ namespace RecipeApp.Data
 {
     public interface IUserRepository : IRepository<ApplicationUser>
     {
-        Task<int> CreateAsync(ApplicationUser user);
+        Task<Guid> CreateAsync(ApplicationUser user);
         Task<ApplicationUser> GetAsync(Guid id);
         Task<int> UpdateAsync(ApplicationUser user);
         Task<int> DeleteAsync(Guid id);

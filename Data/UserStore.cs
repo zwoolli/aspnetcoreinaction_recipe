@@ -17,15 +17,15 @@ namespace RecipeApp.Data
         public async Task<IdentityResult> CreateAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            int rows = await _repository.CreateAsync(user);
-            return GetIdentityResult(rows, "Insert", user);
+            user.User_Id = await _repository.CreateAsync(user);
+            return GetIdentityResult(user.User_Id != Guid.Empty, "Insert", user);
         }
 
         public async Task<IdentityResult> DeleteAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            int rows = await _repository.DeleteAsync(user.Id);
-            return GetIdentityResult(rows, "Delete", user);
+            int rows = await _repository.DeleteAsync(user.User_Id);
+            return GetIdentityResult(rows > 0, "Delete", user);
         }
 
         public async Task<ApplicationUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
@@ -49,7 +49,7 @@ namespace RecipeApp.Data
 
         public Task<string> GetUserIdAsync(ApplicationUser user, CancellationToken cancellationToken)
         {   
-            return Task.FromResult(user.Id.ToString());
+            return Task.FromResult(user.User_Id.ToString());
         }
 
         public Task<string> GetUserNameAsync(ApplicationUser user, CancellationToken cancellationToken)
@@ -73,7 +73,7 @@ namespace RecipeApp.Data
         {
             cancellationToken.ThrowIfCancellationRequested();
             int rows = await _repository.UpdateAsync(user);
-            return GetIdentityResult(rows, "Update", user);
+            return GetIdentityResult(rows > 0, "Update", user);
         }
 
         public async Task<ApplicationUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
@@ -131,9 +131,9 @@ namespace RecipeApp.Data
             return Task.FromResult(0);
         }
 
-        private IdentityResult GetIdentityResult(int rows, string queryType, ApplicationUser user)
+        private IdentityResult GetIdentityResult(bool success, string queryType, ApplicationUser user)
         {
-            if (rows > 0)
+            if (success)
             {
                 return IdentityResult.Success;
             }
