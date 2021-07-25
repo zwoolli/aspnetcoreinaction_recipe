@@ -49,8 +49,7 @@ namespace RecipeApp.Pages.Account
 
             returnUrl ??= Url.Content("~/");
 
-            // Clear the existing external cookie to ensure a clean login process
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
 
 
             ReturnUrl = returnUrl;
@@ -65,7 +64,6 @@ namespace RecipeApp.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                //TODO - Right now this is failing based on no sign-in authentication handler beging registered. Fix.
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 var user = await _userManager.FindByEmailAsync(Input.Email);
                 bool emailStatus = await _userManager.IsEmailConfirmedAsync(user);

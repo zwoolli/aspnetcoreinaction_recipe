@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using RecipeApp.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication;
-using Npgsql;
-using System.Data;
 using RecipeApp.Settings;
 using RecipeApp.Services;
 using System;
@@ -38,25 +38,22 @@ namespace RecipeApp
 
             services.AddTransient<IMailService, MailKitService>();
             
-            // Had to add these next two because I'm using AddIdeneityCore instead of AddIdeneity
-            // See if this is the right thing to do. With AddIdeneity you are forced to have a RoleStore, which I didn't want
-            // But now I see that using IdeneityCore means I have to register things on myown
-            services.AddAuthentication(IdentityConstants.ApplicationScheme)
-                .AddCookie(IdentityConstants.ExternalScheme, o =>
-                {
-                    o.Cookie.Name = IdentityConstants.ExternalScheme;
-                    o.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-                });
-            services.AddSingleton<ISystemClock, SystemClock>();            
-            
-            services.AddIdentityCore<ApplicationUser>()
-                .AddSignInManager()
-                .AddDefaultTokenProviders();
+            #region AddidentityCore
+            // copied from the AddIdentity source code
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+            })
+            .AddCookie(IdentityConstants.ApplicationScheme);
 
+            services.AddIdentityCore<ApplicationUser>(options => 
+            {
+                options.SignIn.RequireConfirmedEmail = true;
+            })
+            .AddSignInManager<CustomSignInManager>()
+            .AddDefaultTokenProviders();
 
-            services.Configure<IdentityOptions>(options => {
-                options.SignIn.RequireConfirmedAccount = true;
-            });
+            #endregion
 
             services.AddRazorPages();
         }
