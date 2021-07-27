@@ -6,6 +6,7 @@ namespace RecipeApp.Data
     public class Recipe
     {
         public Guid Recipe_Id { get; set; }
+        public Guid User_Id { get; set; }
         public string Name { get; set; }
         public TimeSpan TimeToCook { get; set; }
         public string Method { get; set; }

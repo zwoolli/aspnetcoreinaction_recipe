@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -7,6 +8,7 @@ using RecipeApp.Data;
 using Microsoft.AspNetCore.Identity;
 using RecipeApp.Settings;
 using RecipeApp.Services;
+using RecipeApp.Authorization;
 
 namespace RecipeApp
 {
@@ -31,7 +33,7 @@ namespace RecipeApp
             services.AddScoped<IUserRepository>(x => new UserRepository(connectionString));
             services.AddScoped<IRecipeRepository>(x => new RecipeRepository(connectionString));
             services.AddScoped<IUserStore<ApplicationUser>, UserStore>();
-
+            
             services.AddTransient<IMailService, MailKitService>();
             
             #region AddidentityCore
@@ -53,6 +55,14 @@ namespace RecipeApp
             #endregion
 
             services.AddRazorPages();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanManageRecipe", policyBuilder =>
+                    policyBuilder.AddRequirements(new IsRecipeOwnerRequirement()));
+            });
+
+            services.AddScoped<IAuthorizationHandler, IsRecipeOwnerHandler>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

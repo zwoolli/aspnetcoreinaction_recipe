@@ -4,24 +4,33 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Authorization;
 using RecipeApp.Data;
 using RecipeApp.Models;
 
 namespace RecipeApp.Pages.Recipes
 {
+    [Authorize]
     public class EditModel : PageModel
     {
         [BindProperty]
         public UpdateRecipeCommand Input { get; set; }
         private readonly IRecipeRepository _repository;
-
-        public EditModel(IRecipeRepository repository)
+        private readonly IAuthorizationService _authService;
+        public EditModel(IRecipeRepository repository, IAuthorizationService authService)
         {
             _repository = repository;
+            _authService = authService;
         }
 
         public async Task<IActionResult> OnGet(Guid id)
         {
+            Recipe recipe = await _repository.GetRecipeAsync(id);
+            AuthorizationResult authResult = await _authService.AuthorizeAsync(User, recipe, "CanManageRecipe");
+            if (!authResult.Succeeded)
+            {
+                return new ForbidResult();
+            }
 
             Input = await _repository.GetRecipeForUpdateAsync(id);
             if (Input is null)
