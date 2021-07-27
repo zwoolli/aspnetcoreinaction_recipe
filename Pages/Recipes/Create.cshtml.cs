@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RecipeApp.Models;
 using RecipeApp.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RecipeApp.Pages.Recipes
 {
+    [Authorize]
     public class CreateModel : PageModel
     {
         [BindProperty]

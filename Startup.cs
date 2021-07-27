@@ -3,14 +3,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using RecipeApp.Data;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authentication;
 using RecipeApp.Settings;
 using RecipeApp.Services;
-using System;
 
 namespace RecipeApp
 {
@@ -43,6 +39,7 @@ namespace RecipeApp
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
             })
             .AddCookie(IdentityConstants.ApplicationScheme);
 

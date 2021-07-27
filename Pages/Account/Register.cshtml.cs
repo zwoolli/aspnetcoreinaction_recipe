@@ -89,16 +89,8 @@ namespace RecipeApp.Pages.Account
                     };
 
                     await _mailService.SendEmailAsync(mailRequest);
+                    return RedirectToPage("/Index");
 
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("/Index");
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
                 }
                 foreach (var error in result.Errors)
                 {
