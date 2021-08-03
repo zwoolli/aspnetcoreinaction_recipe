@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using RecipeApp.Models;
 using RecipeApp.Data;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace RecipeApp.Pages.Recipes
 {
@@ -31,6 +32,7 @@ namespace RecipeApp.Pages.Recipes
             {
                 if (ModelState.IsValid)
                 {
+                    Input.User_Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
                     var id = await _repository.CreateRecipeAsync(Input);
                     return RedirectToPage("View", new { id = id });
                 }

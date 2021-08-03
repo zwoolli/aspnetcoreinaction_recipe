@@ -9,6 +9,7 @@
     <PackageReference Include="dapper" Version="2.0.90" />
     <PackageReference Include="mailkit" Version="2.13.0" />
     <PackageReference Include="npgsql" Version="5.0.7" />
+    <PackageReference Include="sendgrid" Version="9.24.1" />
   </ItemGroup>
 
 </Project>

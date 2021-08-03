@@ -34,8 +34,10 @@ namespace RecipeApp
             services.AddScoped<IRecipeRepository>(x => new RecipeRepository(connectionString));
             services.AddScoped<IUserStore<ApplicationUser>, UserStore>();
             
-            services.AddTransient<IMailService, MailKitService>();
-            
+            // services.AddTransient<IMailService, MailKitService>();
+            services.AddTransient<IMailService, SendGridService>();
+            services.Configure<SendGridSettings>(Configuration);
+
             #region AddidentityCore
             // copied from the AddIdentity source code
             services.AddAuthentication(options =>

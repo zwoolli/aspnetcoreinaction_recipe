@@ -13,17 +13,19 @@ namespace RecipeApp.Pages
     public class IndexModel : PageModel
     {
         private readonly IRecipeRepository _repository;
+        private readonly ILogger<IndexModel> _log;
         public IEnumerable<RecipeSummaryViewModel> Recipes { get; private set; }
 
-        public IndexModel(IRecipeRepository repository)
+        public IndexModel(IRecipeRepository repository, ILogger<IndexModel> log)
         {
             _repository = repository;
+            _log = log;
         }
 
         public async Task OnGet()
         {
             Recipes = await _repository.GetRecipesForSummary();
-
+            _log.LogInformation("Loaded {RecipeCount} recipes", Recipes.ToList().Count);
         }
     }
 }

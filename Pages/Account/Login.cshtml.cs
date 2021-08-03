@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Identity;
 using RecipeApp.Data;
+using Microsoft.Extensions.Logging;
 
 namespace RecipeApp.Pages.Account
 {
@@ -14,11 +15,13 @@ namespace RecipeApp.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ILogger<LoginModel> _log;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ILogger<LoginModel> log)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _log = log;
         }
 
         [BindProperty]
@@ -70,6 +73,7 @@ namespace RecipeApp.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    _log.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

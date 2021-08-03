@@ -153,15 +153,15 @@ namespace RecipeApp.Data
         public async Task<Guid> CreateRecipeAsync(CreateRecipeCommand cmd)
         {
             Recipe recipe = cmd.ToRecipe();
-            
-            string sqlRecipe = $@"INSERT INTO recipe (recipe_Id, name, timeToCook, 
+
+            string sqlRecipe = $@"INSERT INTO recipe (recipe_Id, user_Id, name, timeToCook, 
                                                 method, isVegan, isVegetarian) 
-                                VALUES (@{nameof(Recipe.Recipe_Id)}, @{nameof(Recipe.Name)}, @{nameof(Recipe.TimeToCook)}, 
+                                VALUES (@{nameof(Recipe.Recipe_Id)}, @{nameof(Recipe.User_Id)}, @{nameof(Recipe.Name)}, @{nameof(Recipe.TimeToCook)}, 
                                             @{nameof(Recipe.Method)}, @{nameof(Recipe.IsVegan)}, 
                                             @{nameof(Recipe.IsVegetarian)})";
 
             string sqlIngredient = $@"INSERT INTO ingredient (ingredient_id, recipe_id, name, quantity, unit) 
-                                    VALUES (@{nameof(Ingredient.Ingredient_Id)}, @{nameof(Recipe.Recipe_Id)}, @{nameof(Ingredient.Name)},
+                                    VALUES (@{nameof(Ingredient.Ingredient_Id)}, @{nameof(Ingredient.Recipe_Id)}, @{nameof(Ingredient.Name)},
                                             @{nameof(Ingredient.Quantity)}, @{nameof(Ingredient.Unit)})";
 
             using (IDbConnection connection = Open())
