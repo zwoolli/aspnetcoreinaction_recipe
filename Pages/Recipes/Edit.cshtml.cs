@@ -25,7 +25,7 @@ namespace RecipeApp.Pages.Recipes
 
         public async Task<IActionResult> OnGet(Guid id)
         {
-            Recipe recipe = await _repository.GetRecipeAsync(id);
+            Recipe recipe = await _repository.GetRecipeById(id);
             AuthorizationResult authResult = await _authService.AuthorizeAsync(User, recipe, "CanManageRecipe");
             if (!authResult.Succeeded)
             {

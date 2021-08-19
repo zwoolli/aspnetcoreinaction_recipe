@@ -13,14 +13,8 @@ namespace RecipeApp.Data
     {        
 
         public RecipeRepository(string connectionString) : base(connectionString) {}
-
-        public async Task<IEnumerable<Recipe>> GetRecipesAsync()
+        private async Task<IEnumerable<Recipe>> GetRecipesAsync(string sql, Guid id = new Guid())
         {
-            string sql = $@"SELECT * 
-                            FROM recipe 
-                            LEFT JOIN ingredient 
-                            ON (recipe.recipe_id = ingredient.recipe_id)";
-
             using (IDbConnection connection = Open())
             {
                 Dictionary<Guid, Recipe> recipeDictionary = new Dictionary<Guid, Recipe>();
@@ -42,6 +36,7 @@ namespace RecipeApp.Data
                             if (ingredient != null) recipeEntry.Ingredients.Add(ingredient);
                             return recipeEntry;
                         },
+                        param: new {id},
                         splitOn: "ingredient_id"
                     )
                 )
@@ -50,8 +45,19 @@ namespace RecipeApp.Data
                 return recipes;
             }
         }
+        private async Task<IEnumerable<Recipe>> GetAllRecipesAsync()
+        {
+            string sql = $@"SELECT * 
+                            FROM recipe 
+                            LEFT JOIN ingredient 
+                            ON (recipe.recipe_id = ingredient.recipe_id)";
 
-        public async Task<Recipe> GetRecipeAsync(Guid id)
+            IEnumerable<Recipe> recipes = await GetRecipesAsync(sql);
+            
+            return recipes;
+        }
+
+        public async Task<Recipe> GetRecipeById(Guid id)
         {
             string sql = $@"SELECT * 
                             FROM recipe
@@ -59,41 +65,33 @@ namespace RecipeApp.Data
                             ON (recipe.recipe_id = ingredient.recipe_id)
                             WHERE recipe.recipe_id = @{nameof(id)}";
 
-            using (IDbConnection connection = Open())
-            {
-                Dictionary<Guid, Recipe> recipeDictionary = new Dictionary<Guid, Recipe>();
+            Recipe recipe = (await GetRecipesAsync(sql, id)).FirstOrDefault();
+            return recipe;
+        }
 
-                Recipe recipe = (
-                    await connection.QueryAsync<Recipe, Ingredient, Recipe>(
-                        sql,
-                        (recipe, ingredient) =>
-                        {
-                            Recipe recipeEntry;
+        public async Task<IEnumerable<RecipeSummaryViewModel>> GetRecipesByUser(Guid id)
+        {
+            string sql = $@"SELECT * 
+                            FROM recipe
+                            LEFT JOIN ingredient
+                            ON (recipe.recipe_id = ingredient.recipe_id)
+                            WHERE recipe.user_id = @{nameof(id)}";
 
-                            if (!recipeDictionary.TryGetValue(recipe.Recipe_Id, out recipeEntry))
-                            {
-                                recipeEntry = recipe;
-                                recipeEntry.Ingredients = new List<Ingredient>();
-                                recipeDictionary.Add(recipeEntry.Recipe_Id, recipeEntry);
-                            }
+            IEnumerable<Recipe> recipes = await GetRecipesAsync(sql, id);
 
-                            if (ingredient != null) recipeEntry.Ingredients.Add(ingredient);
-                            return recipeEntry;
-                        },
-                        param: new {id},
-                        splitOn: "ingredient_id"
-                    )
-                )
-                .Distinct()
-                .FirstOrDefault();
+            IEnumerable<RecipeSummaryViewModel> recipeViewModels = recipes.Select(r => 
+                new RecipeSummaryViewModel
+                {
+                    Id = r.Recipe_Id,
+                    Name = r.Name,
+                });
 
-                return recipe;
-            }
+            return recipeViewModels;
         }
 
         public async Task<IEnumerable<RecipeSummaryViewModel>> GetRecipesForSummary()
         {
-            IEnumerable<Recipe> recipes = await GetRecipesAsync();
+            IEnumerable<Recipe> recipes = await GetAllRecipesAsync();
 
             IEnumerable<RecipeSummaryViewModel> recipeViewModels = recipes.Select(r => 
                 new RecipeSummaryViewModel
@@ -108,13 +106,13 @@ namespace RecipeApp.Data
 
         public async Task<bool> DoesRecipeExistAsync(Guid id) 
         {
-            Recipe recipe = await GetRecipeAsync(id);
+            Recipe recipe = await GetRecipeById(id);
             return recipe == null ? false : true;         
         }
 
         public async Task<RecipeDetailViewModel> GetRecipeDetailAsync(Guid id)
         {
-            Recipe recipe = await GetRecipeAsync(id);
+            Recipe recipe = await GetRecipeById(id);
 
             RecipeDetailViewModel recipeDetailViewModel = new RecipeDetailViewModel 
             {
@@ -134,7 +132,7 @@ namespace RecipeApp.Data
 
         public async Task<UpdateRecipeCommand> GetRecipeForUpdateAsync(Guid id)
         {
-            Recipe recipe = await GetRecipeAsync(id);
+            Recipe recipe = await GetRecipeById(id);
 
             UpdateRecipeCommand updateRecipeCommand =
                 new UpdateRecipeCommand

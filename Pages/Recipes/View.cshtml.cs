@@ -38,7 +38,7 @@ namespace RecipeApp.Pages.Recipes
                 return NotFound();
             }
 
-            Recipe recipe = await _repository.GetRecipeAsync(id);
+            Recipe recipe = await _repository.GetRecipeById(id);
             AuthorizationResult isAuthorized = await _authService.AuthorizeAsync(User, recipe, "CanManageRecipe");
             CanEditRecipe = isAuthorized.Succeeded;
 
