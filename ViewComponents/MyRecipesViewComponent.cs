@@ -5,14 +5,15 @@ using System.Threading.Tasks;
 using RecipeApp.Data;
 using RecipeApp.Models;
 using System;
+using System.Collections.Generic;
 
 namespace RecipeApp.ViewComponents
 {
     public class MyRecipesViewComponent : ViewComponent
     {
-        private readonly RecipeRepository _repository;
+        private readonly IRecipeRepository _repository;
         private readonly UserManager<ApplicationUser> _userManager;
-        public MyRecipesViewComponent(RecipeRepository repository, UserManager<ApplicationUser> userManager)
+        public MyRecipesViewComponent(IRecipeRepository repository, UserManager<ApplicationUser> userManager)
         {
             _repository = repository;
             _userManager = userManager;
@@ -26,9 +27,9 @@ namespace RecipeApp.ViewComponents
             }
             
             string userId = _userManager.GetUserId(HttpContext.User);
-            var recipes = await _repository.GetRecipesByUser(Guid.Parse(userId));
+            IEnumerable<RecipeSummaryViewModel> recipes = await _repository.GetRecipesByUser(Guid.Parse(userId));
 
-            return View(recipes);
+            return View("MyRecipes", recipes.Take(numberOfRecipes));
         }
     }
 }
